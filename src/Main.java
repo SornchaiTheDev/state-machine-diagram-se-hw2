@@ -22,7 +22,7 @@ public class Main {
         service.rotateCrank();
         service.insertQuarter();
         service.rotateCrank();
-        service.rotateCrank();
+        service.ejectQuarter();
 
         System.out.println();
         service.init();

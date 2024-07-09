@@ -3,11 +3,10 @@
 package services;
 
 enum State {
-    IDLE,
-    INSERT_QUARTER,
-    ROTATE_CRANK,
-    EJECT_QUARTER,
-    OUT_OF_GUMBALL
+    NO_QUARTER,
+    HAS_QUARTER,
+    GUMBALL_SOLD,
+    OUT_OF_GUMBALLS
 }
 
 public class GumballService {
@@ -16,7 +15,7 @@ public class GumballService {
 
     public GumballService() {
         inventory = 5;
-        state = State.IDLE;
+        state = State.NO_QUARTER;
     }
 
     public void init() {
@@ -35,7 +34,7 @@ public class GumballService {
     }
 
     private void getStatus() {
-        if (this.state == State.OUT_OF_GUMBALL) {
+        if (this.state == State.OUT_OF_GUMBALLS) {
             System.out.println("Machine is sold out");
         } else {
             System.out.println("Machine is waiting for quarter\n");
@@ -43,46 +42,54 @@ public class GumballService {
     }
 
     public void insertQuarter() {
-        if (this.state == State.INSERT_QUARTER) {
+        if (this.state == State.HAS_QUARTER) {
             System.out.println("You can't insert another quarter");
             return;
         }
 
-        if (this.state == State.OUT_OF_GUMBALL) {
+        if (this.state == State.OUT_OF_GUMBALLS) {
             System.out.println("You can't insert a quarter, the machine is sold out");
             return;
         }
 
-        this.state = State.INSERT_QUARTER;
+        this.state = State.HAS_QUARTER;
         System.out.println("You inserted a quarter");
     }
 
     public void rotateCrank() {
         switch (this.state) {
-            case State.EJECT_QUARTER:
+            case State.NO_QUARTER:
                 System.out.println("You turned but there's no quarter");
-                break;
-            case State.INSERT_QUARTER:
-                this.state = State.ROTATE_CRANK;
+                return;
+            case State.HAS_QUARTER:
+                this.state = State.GUMBALL_SOLD;
                 this.inventory--;
                 System.out.println("You turned...");
                 System.out.println("A gumball comes rolling out the slot");
                 if (this.inventory == 0) {
                     System.out.println("Oops, out of gumballs!");
-                    this.state = State.OUT_OF_GUMBALL;
+                    this.state = State.OUT_OF_GUMBALLS;
+                } else {
+                    this.state = State.NO_QUARTER;
                 }
                 break;
-            case State.OUT_OF_GUMBALL:
+            case State.OUT_OF_GUMBALLS:
                 System.out.println("You turned, but there are no gumballs");
                 break;
-            default:
-                System.out.println("You haven't inserted a quarter");
         }
+
 
     }
 
     public void ejectQuarter() {
-        this.state = State.EJECT_QUARTER;
-        System.out.println("Quarter returned");
+        if (this.state == State.HAS_QUARTER) {
+            this.state = State.NO_QUARTER;
+            System.out.println("Quarter returned");
+            return;
+        }
+
+        if (this.state == State.NO_QUARTER) {
+            System.out.println("You haven't inserted a quarter");
+        }
     }
 }
